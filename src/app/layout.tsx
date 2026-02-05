@@ -25,7 +25,7 @@ export default function RootLayout({
       <head>
         <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/logos/cp1.png" />
-        <link rel="apple-touch-icon" href="/logos/cp3.png" />
+        <link rel="apple-touch-icon" href="/logos/mobile-app-logo.png" />
         <meta name="theme-color" content="#4f46e5" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

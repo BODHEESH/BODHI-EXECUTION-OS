@@ -1,52 +1,94 @@
 # BODHI EXECUTION OS
 
-A complete productivity tracking web application built with Next.js 14, TypeScript, Tailwind CSS, Prisma ORM, and PostgreSQL.
+🚀 **Ultimate productivity platform for personal and business success with 95+ features**
 
-## Features
+A comprehensive productivity tracking web application built with Next.js 16, TypeScript, Tailwind CSS, Prisma ORM, and PostgreSQL. Designed for 60-day execution plans with measurable goals, habit streaks, and accountability partnerships.
 
-### 🎯 Daily Tracker
-- Track daily habits (deep work, gym, content, e-commerce, 3D printing, sleep schedule)
-- Mood tracking with automatic score calculation
-- Weekly and monthly analytics
-- Streak tracking for consistency
+## ✨ Key Features
 
-### ✅ Task Management
-- Kanban board with drag-and-drop functionality
-- Categories: YouTube, BODHI Learn, E-commerce, 3D Printing, Work, Personal
-- Priority levels: High, Medium, Low
-- Status tracking: Backlog, Today, In Progress, Waiting, Done
-- Time estimation and due date management
+### 🎯 **Goal Setting System**
+- **Measurable Goals**: Track YouTube subscribers, revenue, fitness targets, and personal milestones
+- **Progress Visualization**: Real-time progress bars with percentage completion
+- **Urgency Indicators**: Critical/Urgent/Normal/Comfortable status tracking
+- **Smart Suggestions**: Pre-built goal templates for different categories
+- **Wife Accountability**: Share goals with your partner for support and encouragement
 
-### 📹 Content Pipeline
-- Multi-platform content management (YouTube, Instagram, Shorts)
-- Workflow stages: Idea → Scripted → Recorded → Editing → Thumbnail Ready → Scheduled → Posted
-- Content calendar and scheduling
-- Platform-specific organization
+### 🔥 **Habit Streaks Gamification**
+- **Visual Streak Tracking**: Fire emojis (🔥 → 🔥🔥 → 🔥🔥🔥) based on streak length
+- **7 Habit Types**: Deep Work, Gym, Content, E-commerce, 3D Printing, Sleep, Wake-up
+- **Achievement System**: Milestones at 7, 30, 60+ days
+- **Streak Insights**: Personal bests and motivational messages
+- **Automatic Calculation**: Smart streak logic that handles missed days
 
-### 💼 Business Tracker
-- Order management for clothing and 3D printing businesses
-- Revenue and profit tracking
-- Order status workflow
-- Payment status monitoring
-- Customer and order details
+### 💝 **Accountability Partnership**
+- **Wife Sharing System**: Share goals, achievements, and daily progress
+- **Emoji Reactions**: ❤️ 🔥 💪 🎉 for encouragement and support
+- **Shared Feed**: Real-time updates between partners
+- **Motivation Boost**: Built-in partnership for goal achievement
+- **Progress Celebrations**: Automatic sharing of milestones
 
-### 📊 Analytics Dashboard
-- Weekly habit scores and trends
-- Task completion metrics
-- Content pipeline overview
-- Business performance analytics
-- Visual charts and progress indicators
+### 📅 **Weekly Execution Plan**
+- **60-Day Success Plan**: Complete execution system based on your weekly plan
+- **Daily Non-Negotiables**: 5 must-do items every day (Deep Work 60+ min, Content 30+ min, Gym/Walk 30+ min, Sleep Before 11 PM, Wake 5:30 AM)
+- **Day-Specific Tasks**: Unique morning/evening/fitness tasks for each day
+- **Interactive Checklist**: Click-to-toggle checkboxes with visual feedback
+- **Weekly Analytics**: Execution score breakdown by category
+- **Burnout Prevention**: 4 rules to prevent burnout and maintain consistency
 
-## Tech Stack
+### 🎯 **Daily Tracker**
+- **Habit Tracking**: Deep work, gym, content, e-commerce, 3D printing, sleep schedule
+- **Mood Tracking**: Automatic score calculation with visual indicators
+- **Weekly Analytics**: Comprehensive habit performance metrics
+- **Recurring Tasks**: Automatic task creation for consistent habits
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: shadcn/ui
+### ✅ **Advanced Task Management**
+- **Kanban Board**: Drag-and-drop functionality with visual workflow
+- **Smart Categories**: YouTube, BODHI Learn, E-commerce, 3D Printing, Work, Personal
+- **Priority System**: High, Medium, Low with color coding
+- **Status Tracking**: Backlog → Today → In Progress → Waiting → Done
+- **Time Management**: Estimation and due date tracking
+- **Recurring Tasks**: Automated task generation for repeated activities
+
+### 📹 **Content Pipeline Management**
+- **Multi-Platform**: YouTube, Instagram, Shorts, Reels support
+- **Workflow Stages**: Idea → Scripted → Recorded → Editing → Thumbnail Ready → Scheduled → Posted
+- **Content Calendar**: Visual scheduling and planning
+- **Platform Analytics**: Performance tracking per platform
+- **Batch Processing**: Handle multiple content pieces efficiently
+
+### 💼 **Business Order Tracking**
+- **Multi-Business**: Clothing and 3D printing business management
+- **Revenue Analytics**: Real-time profit and revenue tracking
+- **Order Workflow**: Complete order status management
+- **Payment Monitoring**: Track payment status and follow-ups
+- **Customer Management**: Detailed customer and order information
+- **Audit History**: Complete business transaction tracking
+
+### 📊 **Comprehensive Analytics**
+- **Weekly Reviews**: Detailed performance analysis
+- **Progress Visualization**: Charts and graphs for all metrics
+- **Trend Analysis**: Long-term performance trends
+- **Export Features**: CSV and JSON data export
+- **Mobile Responsive**: Full functionality on all devices
+
+### 📱 **PWA Support**
+- **Mobile App**: Add to homescreen functionality
+- **Offline Support**: Works without internet connection
+- **Custom Icons**: Professional app icons for all screen sizes
+- **Standalone Mode**: Native app experience
+- **Push Notifications**: Reminders and updates (coming soon)
+
+## 🛠 Tech Stack
+
+- **Frontend**: Next.js 16 (App Router), TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui with custom components
 - **Database**: PostgreSQL with Prisma ORM
 - **Authentication**: NextAuth.js with Google OAuth
-- **Charts**: Recharts
-- **State Management**: Zustand
+- **Charts**: Recharts for data visualization
+- **State Management**: React hooks and context
 - **Form Handling**: React Hook Form with Zod validation
-- **Deployment**: Vercel
+- **PWA**: Progressive Web App with manifest
+- **Deployment**: Vercel with automatic deployments
 
 ## Getting Started
 
@@ -101,27 +143,49 @@ npm run dev
 ```
 bodhi-execution-os/
 ├── prisma/
-│   ├── schema.prisma          # Database schema
+│   ├── schema.prisma          # Database schema with Goals, Streaks, Accountability
 │   └── migrations/             # Database migrations
 ├── src/
 │   ├── app/
-│   │   ├── (auth)/            # Authentication pages
+│   │   ├── (auth)/            # Authentication pages (login, register)
 │   │   ├── (dashboard)/       # Protected dashboard pages
-│   │   │   ├── dashboard/     # Main dashboard
-│   │   │   ├── daily-tracker/ # Habit tracking
-│   │   │   ├── tasks/         # Task management
-│   │   │   ├── content/       # Content pipeline
-│   │   │   └── business/      # Business tracker
+│   │   │   ├── dashboard/     # Main dashboard with overview
+│   │   │   ├── daily-tracker/ # Habit and mood tracking
+│   │   │   ├── tasks/         # Advanced task management
+│   │   │   ├── content/       # Content pipeline management
+│   │   │   ├── business/      # Business order tracking
+│   │   │   ├── goals/         # Goal setting & progress tracking
+│   │   │   ├── execution-plan/ # 60-day weekly execution plan
+│   │   │   ├── weekly-review/ # Comprehensive analytics
+│   │   │   └── settings/      # User settings and preferences
 │   │   └── api/               # API routes
+│   │       ├── goals/         # Goal CRUD operations
+│   │       ├── habit-streaks/ # Streak tracking API
+│   │       ├── accountability/ # Wife sharing system
+│   │       ├── weekly-plan/   # Execution plan API
+│   │       └── ...            # Other API endpoints
 │   ├── components/
 │   │   ├── ui/                # shadcn/ui components
-│   │   └── charts/            # Chart components
+│   │   ├── goals-card.tsx     # Goal progress component
+│   │   ├── habit-streaks-card.tsx # Streak visualization
+│   │   ├── accountability-feed.tsx # Wife partnership feed
+│   │   ├── weekly-plan-checklist.tsx # Interactive checklist
+│   │   └── ...                # Other custom components
 │   ├── lib/
+│   │   ├── goal-utils.ts      # Goal progress calculations
+│   │   ├── streak-utils.ts    # Streak logic and messages
+│   │   ├── weekly-plan-config.ts # Execution plan configuration
 │   │   ├── auth.ts            # NextAuth configuration
 │   │   ├── prisma.ts          # Prisma client
 │   │   └── utils.ts           # Utility functions
 │   └── types/                 # TypeScript type definitions
-├── public/                    # Static assets
+├── public/
+│   ├── logos/                 # Application logos (cp1.png, cp3.png)
+│   ├── manifest.json          # PWA manifest for mobile
+│   └── ...                    # Other static assets
+├── goals-streaks-accountability-migration.sql # Database migration
+├── weekly-plan-migration.sql  # Weekly plan migration
+├── features-list.md           # Complete feature documentation
 └── README.md
 ```
 
@@ -129,17 +193,71 @@ bodhi-execution-os/
 
 The application uses PostgreSQL with the following main models:
 
+### Core Models
 - **User**: Authentication and role management (ME, WIFE)
-- **DailyTracker**: Daily habit tracking and scores
-- **Task**: Task management with categories and priorities
-- **Content**: Content pipeline management
-- **Business**: Business order and revenue tracking
+- **DailyTracker**: Daily habit tracking and mood scores
+- **Task**: Advanced task management with categories and priorities
+- **Content**: Content pipeline management with multi-platform support
+- **Business**: Business order and revenue tracking with audit history
+
+### New Feature Models
+- **Goal**: Goal setting with progress tracking, categories, and deadlines
+- **HabitStreak**: Streak tracking for habit consistency and achievements
+- **WeeklyPlan**: 60-day execution plan with daily non-negotiables and day-specific tasks
+- **AccountabilityShare**: Wife partnership sharing system with reactions
+
+### Key Relationships
+- Users have multiple goals, habit streaks, and weekly plans
+- Goals can be shared with wife for accountability
+- Habit streaks automatically update based on daily tracker completion
+- Weekly plans integrate with daily execution tracking
+
+## 🎯 60-Day Execution Plan
+
+The application is specifically designed for 60-day success plans with measurable outcomes:
+
+### 📈 Success Targets
+- **YouTube**: Consistent content creation and subscriber growth
+- **E-commerce**: Complete business launch and revenue generation
+- **Fitness**: Establish sustainable workout routine
+- **3D Printing**: Create additional income stream
+- **Partnership**: Build accountability with wife
+
+### 🔥 Daily Non-Negotiables
+- Deep Work (60+ minutes)
+- Content Work (30+ minutes)  
+- Gym/Walk (30+ minutes)
+- Sleep Before 11 PM
+- Wake at 5:30 AM
+
+### 📅 Weekly Structure
+- **Sunday**: Planning and preparation
+- **Monday-Friday**: Execution with specific morning/evening tasks
+- **Saturday**: Review and recovery
+
+### 🏆 Achievement System
+- Streak tracking for consistency
+- Progress visualization for goals
+- Wife partnership for accountability
+- Weekly analytics for optimization
 
 ## Authentication
 
-The application uses NextAuth.js with Google OAuth. Users can sign in with their Google account, and their role (ME or WIFE) is assigned for proper access control.
+The application uses NextAuth.js with Google OAuth. Users can sign in with their Google account, and their role (ME or WIFE) is assigned for proper access control and partnership features.
 
-## Deployment
+## 🚀 Deployment
+
+### Database Setup (Required)
+
+Before deployment, run the database migrations:
+
+```bash
+# Run the main migration
+psql YOUR_DATABASE_URL < goals-streaks-accountability-migration.sql
+
+# Run the weekly plan migration  
+psql YOUR_DATABASE_URL < weekly-plan-migration.sql
+```
 
 ### Vercel Deployment
 
@@ -155,6 +273,12 @@ The application uses NextAuth.js with Google OAuth. Users can sign in with their
 - `NEXTAUTH_URL`: Your deployed URL
 - `GOOGLE_CLIENT_ID`: Google OAuth client ID
 - `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
+
+### Post-Deployment Setup
+
+1. **Run Database Migrations**: Execute the SQL migrations in your Supabase/PostgreSQL dashboard
+2. **Verify Features**: Test goal creation, streak tracking, and accountability sharing
+3. **PWA Setup**: The app will automatically support add-to-homescreen on mobile devices
 
 ## Development
 
@@ -198,6 +322,36 @@ npm run format
 
 This project is licensed under the MIT License.
 
-## Support
+## 📊 Feature Summary
+
+**BODHI EXECUTION OS** includes **95+ features** across 8 categories:
+
+### 📈 Feature Breakdown
+- **Core Features**: 35 (Goals, Streaks, Execution Plan, Daily Tracker)
+- **Advanced Features**: 20 (Task Management, Content Pipeline, Business Tracking)
+- **UI/UX Features**: 15 (Mobile Responsive, PWA, Dark Mode)
+- **Security Features**: 10 (Role-based Access, Data Protection)
+- **Technical Features**: 15 (API Endpoints, Database Migrations, Export)
+
+### 🎯 Key Achievements
+- ✅ **60-Day Success Formula**: Complete execution system
+- ✅ **Wife Partnership**: Built-in accountability system
+- ✅ **Mobile PWA**: Native app experience
+- ✅ **Real-time Analytics**: Comprehensive performance tracking
+- ✅ **Gamification**: Streaks and achievements
+- ✅ **Multi-Business**: Clothing + 3D printing support
+- ✅ **Content Pipeline**: Multi-platform content management
+
+## 🆘 Support
 
 For support and questions, please open an issue in the GitHub repository.
+
+### 📚 Additional Documentation
+- [`features-list.md`](./features-list.md) - Complete feature documentation
+- [`GOALS_STREAKS_ACCOUNTABILITY_GUIDE.md`](./GOALS_STREAKS_ACCOUNTABILITY_GUIDE.md) - Detailed implementation guide
+- [`weekly-plan-migration.sql`](./weekly-plan-migration.sql) - Database migration
+- [`goals-streaks-accountability-migration.sql`](./goals-streaks-accountability-migration.sql) - New features migration
+
+---
+
+🚀 **Built for 60-day success with measurable goals, consistent habits, and strong partnerships!**
