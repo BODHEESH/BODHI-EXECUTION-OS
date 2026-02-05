@@ -1,0 +1,235 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums for the application
+enum UserRole {
+  ME
+  WIFE
+}
+
+enum Mood {
+  GREAT
+  GOOD
+  OK
+  LOW
+}
+
+enum TaskCategory {
+  YOUTUBE
+  BODHI_LEARN
+  ECOMMERCE
+  PRINTER
+  WORK
+  PERSONAL
+}
+
+enum TaskPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum TaskStatus {
+  BACKLOG
+  TODAY
+  IN_PROGRESS
+  WAITING
+  DONE
+}
+
+enum EstimatedTime {
+  MIN15
+  MIN30
+  HOUR1
+  HOUR2
+  HOUR4
+}
+
+enum Owner {
+  ME
+  WIFE
+}
+
+enum ContentType {
+  LONG_VIDEO
+  SHORT
+  REEL
+}
+
+enum ContentStatus {
+  IDEA
+  SCRIPTED
+  RECORDED
+  EDITING
+  THUMBNAIL_READY
+  SCHEDULED
+  POSTED
+}
+
+enum BusinessType {
+  CLOTHING
+  PRINTING_3D
+}
+
+enum OrderStatus {
+  NEW
+  DESIGNING
+  PRINTING
+  PACKING
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+}
+
+// NextAuth required tables
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole  @default(ME)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  dailyTrackers DailyTracker[]
+  tasks         Task[]
+  content       Content[]
+  business      Business[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Daily Tracker Model
+model DailyTracker {
+  id            String    @id @default(cuid())
+  date          DateTime  @unique
+  day           String
+  deepWorkDone  Boolean   @default(false)
+  gymDone       Boolean   @default(false)
+  contentDone   Boolean   @default(false)
+  ecommerceDone Boolean   @default(false)
+  printerDone   Boolean   @default(false)
+  sleepBefore11 Boolean   @default(false)
+  wake530       Boolean   @default(false)
+  mood          Mood      @default(GOOD)
+  notes         String?
+  score         Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([date, userId])
+  @@map("daily_trackers")
+}
+
+// Task Model
+model Task {
+  id            String        @id @default(cuid())
+  title         String
+  description   String?
+  category      TaskCategory
+  priority      TaskPriority  @default(MEDIUM)
+  status        TaskStatus    @default(BACKLOG)
+  dueDate       DateTime?
+  estimatedTime EstimatedTime @default(HOUR1)
+  owner         Owner         @default(ME)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
+// Content Model
+model Content {
+  id           String        @id @default(cuid())
+  title        String
+  platforms     String[]
+  type         ContentType
+  status       ContentStatus @default(IDEA)
+  shootDate    DateTime?
+  publishDate  DateTime?
+  videoLink    String?
+  scriptLink   String?
+  remarks      String?
+  owner        Owner         @default(ME)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  userId       String
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("content")
+}
+
+// Business Model
+model Business {
+  id           String         @id @default(cuid())
+  customerName String
+  businessType BusinessType
+  orderStatus  OrderStatus    @default(NEW)
+  orderDate    DateTime       @default(now())
+  deliveryDate DateTime?
+  amount       Float
+  cost         Float
+  profit       Float          @default(0)
+  paymentStatus PaymentStatus @default(PENDING)
+  handledBy    Owner          @default(ME)
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  userId       String
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("business")
+}

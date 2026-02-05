@@ -1,36 +1,203 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BODHI EXECUTION OS
+
+A complete productivity tracking web application built with Next.js 14, TypeScript, Tailwind CSS, Prisma ORM, and PostgreSQL.
+
+## Features
+
+### 🎯 Daily Tracker
+- Track daily habits (deep work, gym, content, e-commerce, 3D printing, sleep schedule)
+- Mood tracking with automatic score calculation
+- Weekly and monthly analytics
+- Streak tracking for consistency
+
+### ✅ Task Management
+- Kanban board with drag-and-drop functionality
+- Categories: YouTube, BODHI Learn, E-commerce, 3D Printing, Work, Personal
+- Priority levels: High, Medium, Low
+- Status tracking: Backlog, Today, In Progress, Waiting, Done
+- Time estimation and due date management
+
+### 📹 Content Pipeline
+- Multi-platform content management (YouTube, Instagram, Shorts)
+- Workflow stages: Idea → Scripted → Recorded → Editing → Thumbnail Ready → Scheduled → Posted
+- Content calendar and scheduling
+- Platform-specific organization
+
+### 💼 Business Tracker
+- Order management for clothing and 3D printing businesses
+- Revenue and profit tracking
+- Order status workflow
+- Payment status monitoring
+- Customer and order details
+
+### 📊 Analytics Dashboard
+- Weekly habit scores and trends
+- Task completion metrics
+- Content pipeline overview
+- Business performance analytics
+- Visual charts and progress indicators
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js with Google OAuth
+- **Charts**: Recharts
+- **State Management**: Zustand
+- **Form Handling**: React Hook Form with Zod validation
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- PostgreSQL database (Supabase or Neon recommended)
+- Google OAuth credentials
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone <repository-url>
+cd bodhi-execution-os
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Configure your environment variables in `.env.local`:
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DBNAME"
+NEXTAUTH_SECRET="your_random_secret_key"
+NEXTAUTH_URL="http://localhost:3000"
+GOOGLE_CLIENT_ID="your_google_client_id"
+GOOGLE_CLIENT_SECRET="your_google_client_secret"
+```
 
-## Learn More
+5. Set up the database:
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
 
-To learn more about Next.js, take a look at the following resources:
+6. Run the development server:
+```bash
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+7. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+bodhi-execution-os/
+├── prisma/
+│   ├── schema.prisma          # Database schema
+│   └── migrations/             # Database migrations
+├── src/
+│   ├── app/
+│   │   ├── (auth)/            # Authentication pages
+│   │   ├── (dashboard)/       # Protected dashboard pages
+│   │   │   ├── dashboard/     # Main dashboard
+│   │   │   ├── daily-tracker/ # Habit tracking
+│   │   │   ├── tasks/         # Task management
+│   │   │   ├── content/       # Content pipeline
+│   │   │   └── business/      # Business tracker
+│   │   └── api/               # API routes
+│   ├── components/
+│   │   ├── ui/                # shadcn/ui components
+│   │   └── charts/            # Chart components
+│   ├── lib/
+│   │   ├── auth.ts            # NextAuth configuration
+│   │   ├── prisma.ts          # Prisma client
+│   │   └── utils.ts           # Utility functions
+│   └── types/                 # TypeScript type definitions
+├── public/                    # Static assets
+└── README.md
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Schema
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application uses PostgreSQL with the following main models:
+
+- **User**: Authentication and role management (ME, WIFE)
+- **DailyTracker**: Daily habit tracking and scores
+- **Task**: Task management with categories and priorities
+- **Content**: Content pipeline management
+- **Business**: Business order and revenue tracking
+
+## Authentication
+
+The application uses NextAuth.js with Google OAuth. Users can sign in with their Google account, and their role (ME or WIFE) is assigned for proper access control.
+
+## Deployment
+
+### Vercel Deployment
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Configure environment variables in Vercel dashboard
+4. Deploy!
+
+### Environment Variables for Production
+
+- `DATABASE_URL`: Your PostgreSQL connection string
+- `NEXTAUTH_SECRET`: Random secret string
+- `NEXTAUTH_URL`: Your deployed URL
+- `GOOGLE_CLIENT_ID`: Google OAuth client ID
+- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
+
+## Development
+
+### Running Tests
+
+```bash
+npm run test
+```
+
+### Database Management
+
+```bash
+# Create new migration
+npx prisma migrate dev --name <migration-name>
+
+# Reset database
+npx prisma migrate reset
+
+# View database in Prisma Studio
+npx prisma studio
+```
+
+### Code Style
+
+The project uses ESLint and Prettier for code formatting. Run:
+
+```bash
+npm run lint
+npm run format
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
+
+For support and questions, please open an issue in the GitHub repository.
