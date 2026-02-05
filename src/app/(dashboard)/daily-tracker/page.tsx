@@ -41,37 +41,47 @@ export default function DailyTrackerPage() {
     return `${year}-${month}-${day}`;
   };
   
-  const [selectedDate, setSelectedDate] = useState<string>(getCurrentDate());
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [todayData, setTodayData] = useState<DailyTracker | null>(null);
   const [weeklyData, setWeeklyData] = useState<DailyTracker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [today, setToday] = useState<string>('');
   const currentUser = useCurrentUser();
   const reminders = useReminders(currentUser || undefined);
 
-  const today = getCurrentDate();
   const isToday = selectedDate === today;
 
+  // Initialize dates on client side only
   useEffect(() => {
-    if (currentUser) {
+    const currentDate = getCurrentDate();
+    setSelectedDate(currentDate);
+    setToday(currentDate);
+  }, []);
+
+  useEffect(() => {
+    if (currentUser && today) {
       // Ensure today's tracker exists
       ensureTodayTrackerExists(currentUser);
       fetchData();
     }
-  }, [currentUser, selectedDate]);
+  }, [currentUser, selectedDate, today]);
 
   // Auto-refresh at midnight
   useEffect(() => {
+    if (!today) return; // Don't run until today is initialized
+    
     const checkMidnight = setInterval(() => {
       const currentDate = getCurrentDate();
       if (currentDate !== selectedDate && isToday) {
         setSelectedDate(currentDate);
+        setToday(currentDate);
       }
     }, 60000); // Check every minute
 
     return () => clearInterval(checkMidnight);
-  }, [selectedDate, isToday]);
+  }, [selectedDate, isToday, today]);
 
   const fetchData = async () => {
     if (!currentUser) return;
@@ -245,7 +255,7 @@ export default function DailyTrackerPage() {
     });
   };
 
-  if (isLoading) {
+  if (isLoading || !today) {
     return (
       <div className="space-y-6">
         <div>

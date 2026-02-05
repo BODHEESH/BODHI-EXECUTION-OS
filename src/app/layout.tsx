@@ -1,9 +1,7 @@
-"use client";
-
-import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
+import { Providers } from "@/components/providers";
 import "./globals.css";
+import type { Metadata, Viewport } from "next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -15,6 +13,35 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+export const metadata: Metadata = {
+  title: "BODHI EXECUTION OS",
+  description: "Ultimate productivity platform for personal and business success",
+  manifest: "/manifest.json",
+  icons: {
+    icon: "/logos/cp1.png",
+    apple: [
+      { url: "/logos/mobile-app-logo1.png" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "72x72" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "96x96" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "128x128" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "144x144" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "152x152" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "192x192" },
+      { url: "/logos/mobile-app-logo1.png", sizes: "384x384" },
+      { url: "/logos/cp1.png", sizes: "512x512" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "BODHI OS",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,30 +49,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/logos/cp1.png" />
-        <link rel="apple-touch-icon" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="72x72" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="96x96" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="128x128" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="144x144" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="152x152" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="192x192" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="384x384" href="/logos/mobile-app-logo.png" />
-        <link rel="apple-touch-icon" sizes="512x512" href="/logos/cp1.png" />
-        <meta name="theme-color" content="#4f46e5" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="BODHI OS" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
       >
-        <SessionProvider>
+        <Providers>
           {children}
-        </SessionProvider>
+        </Providers>
       </body>
     </html>
   );
