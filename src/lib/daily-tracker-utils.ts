@@ -2,9 +2,11 @@
  * Utility functions for Daily Tracker data integrity
  */
 
+import { getCurrentDate, getCurrentDayOfWeek } from './date-utils';
+
 export async function ensureTodayTrackerExists(userId: string): Promise<any> {
-  const today = new Date().toISOString().split('T')[0];
-  const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  const today = getCurrentDate();
+  const dayName = getCurrentDayOfWeek();
 
   try {
     // Check if today's tracker exists
@@ -38,7 +40,9 @@ export async function ensureTodayTrackerExists(userId: string): Promise<any> {
     });
 
     if (!createResponse.ok) {
-      throw new Error('Failed to create today tracker');
+      const errorData = await createResponse.json();
+      console.error('Failed to create today tracker:', errorData);
+      throw new Error(`Failed to create today tracker: ${errorData.error || 'Unknown error'}`);
     }
 
     return await createResponse.json();
@@ -49,9 +53,9 @@ export async function ensureTodayTrackerExists(userId: string): Promise<any> {
 }
 
 export function getTodayDate(): string {
-  return new Date().toISOString().split('T')[0];
+  return getCurrentDate();
 }
 
 export function getTodayDayName(): string {
-  return new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+  return getCurrentDayOfWeek();
 }

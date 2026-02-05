@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import { DAILY_NON_NEGOTIABLES, WEEKLY_PLAN, getDayOfWeek, getWeekDates } from "@/lib/weekly-plan-config";
+import { getCurrentDate } from "@/lib/date-utils";
 
 interface WeeklyPlanChecklistProps {
   userId: string;
@@ -18,8 +19,23 @@ export function WeeklyPlanChecklist({ userId, compact = false, showOnlyToday = f
   const [currentWeekStart, setCurrentWeekStart] = useState(new Date());
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [today, setToday] = useState<string>('');
 
-  const today = new Date().toISOString().split('T')[0];
+  useEffect(() => {
+    // Initialize today's date on client side only
+    setToday(getCurrentDate());
+    
+    // Set up interval to check for midnight transition
+    const checkMidnight = setInterval(() => {
+      const currentDate = getCurrentDate();
+      if (currentDate !== today) {
+        setToday(currentDate);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkMidnight);
+  }, [today]);
+
   const todayDayOfWeek = getDayOfWeek(new Date());
 
   useEffect(() => {
