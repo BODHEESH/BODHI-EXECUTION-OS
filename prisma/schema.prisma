@@ -138,6 +138,9 @@ model User {
   tasks         Task[]
   content       Content[]
   business      Business[]
+  weeklyPlans   WeeklyPlan[]
+  goals         Goal[]
+  habitStreaks  HabitStreak[]
 }
 
 model VerificationToken {
@@ -183,6 +186,10 @@ model Task {
   dueDate       DateTime?
   estimatedTime EstimatedTime @default(HOUR1)
   owner         Owner         @default(ME)
+  isRecurring   Boolean       @default(false)
+  recurringFrequency String?   // DAILY, WEEKLY, MONTHLY
+  lastRecurredAt DateTime?
+  parentTaskId  String?
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
   userId        String
@@ -230,6 +237,132 @@ model Business {
   updatedAt    DateTime       @updatedAt
   userId       String
   user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  auditHistory BusinessAudit[]
 
   @@map("business")
+}
+
+// Business Audit History Model
+model BusinessAudit {
+  id          String      @id @default(cuid())
+  businessId  String
+  business    Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  oldStatus   OrderStatus?
+  newStatus   OrderStatus
+  changedBy   Owner
+  notes       String?
+  createdAt   DateTime    @default(now())
+
+  @@map("business_audit")
+}
+
+// Weekly Plan Checklist Model
+model WeeklyPlan {
+  id          String   @id @default(cuid())
+  date        String   // Format: YYYY-MM-DD
+  dayOfWeek   String   // SUNDAY, MONDAY, TUESDAY, etc.
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Daily Non-Negotiables (Must Do Every Day)
+  deepWorkDone      Boolean @default(false)
+  contentWorkDone   Boolean @default(false)
+  gymWalkDone       Boolean @default(false)
+  sleepBefore11     Boolean @default(false)
+  wake530           Boolean @default(false)
+  
+  // Day-Specific Tasks (based on weekly plan)
+  morningTaskDone   Boolean @default(false)  // 5:45-7:15 AM deep work task
+  eveningTaskDone   Boolean @default(false)  // 8:15-10:15 PM light work task
+  fitnessTaskDone   Boolean @default(false)  // 6:15-7:15 PM fitness/recovery
+  
+  // Notes and Planning
+  morningTaskDesc   String?  // What was the morning deep work task
+  eveningTaskDesc   String?  // What was the evening task
+  notes             String?  // Any additional notes
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([date, userId])
+  @@map("weekly_plans")
+}
+
+// Goal Setting Model
+model Goal {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  category      GoalCategory
+  targetValue   Float
+  currentValue  Float    @default(0)
+  unit          String   // subscribers, revenue, kg, videos, etc.
+  deadline      DateTime
+  status        GoalStatus @default(IN_PROGRESS)
+  priority      TaskPriority @default(MEDIUM)
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sharedWith    Owner?   // Share with WIFE for accountability
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("goals")
+}
+
+enum GoalCategory {
+  CONTENT
+  BUSINESS
+  HEALTH
+  PERSONAL
+  LEARNING
+}
+
+enum GoalStatus {
+  IN_PROGRESS
+  COMPLETED
+  PAUSED
+  CANCELLED
+}
+
+// Habit Streak Model
+model HabitStreak {
+  id              String   @id @default(cuid())
+  habitName       String   // Deep Work, Gym, Content, etc.
+  currentStreak   Int      @default(0)
+  longestStreak   Int      @default(0)
+  lastCompletedAt DateTime?
+  totalCompletions Int     @default(0)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([habitName, userId])
+  @@map("habit_streaks")
+}
+
+// Accountability Share Model (for wife partnership)
+model AccountabilityShare {
+  id          String   @id @default(cuid())
+  fromUserId  String   // Who is sharing
+  toUserId    String   // Who it's shared with (wife)
+  shareType   ShareType
+  itemId      String   // ID of goal, task, or tracker
+  message     String?
+  reaction    String?  // Wife's reaction/encouragement
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("accountability_shares")
+}
+
+enum ShareType {
+  GOAL
+  TASK
+  DAILY_TRACKER
+  WEEKLY_PLAN
+  ACHIEVEMENT
 }

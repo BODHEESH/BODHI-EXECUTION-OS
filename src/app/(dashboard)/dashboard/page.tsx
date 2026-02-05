@@ -5,6 +5,11 @@ import { Calendar, CheckCircle, Clock, DollarSign, Video, Package, Target, Trend
 import { useEffect, useState } from "react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { Task, DailyTracker, Content, Business } from "@/lib/schemas";
+import { useReminders } from "@/hooks/use-reminders";
+import { ReminderBanner } from "@/components/reminder-banner";
+import { ensureTodayTrackerExists } from "@/lib/daily-tracker-utils";
+import { checkAndCreateDueRecurringTasks } from "@/lib/recurring-tasks";
+import { WeeklyPlanChecklist } from "@/components/weekly-plan-checklist";
 
 // Custom Rupee icon component
 const RupeeSign = ({ className }: { className?: string }) => (
@@ -21,9 +26,13 @@ export default function DashboardPage() {
   const [pendingPayments, setPendingPayments] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const currentUser = useCurrentUser();
+  const reminders = useReminders(currentUser || undefined);
 
   useEffect(() => {
     if (currentUser) {
+      // Initialize data integrity and automation
+      ensureTodayTrackerExists(currentUser);
+      checkAndCreateDueRecurringTasks(currentUser);
       fetchDashboardData();
     }
   }, [currentUser]);
@@ -117,6 +126,9 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Reminder Banner */}
+      <ReminderBanner reminders={reminders} />
+      
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl p-6 text-white shadow-lg">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Dashboard</h1>
@@ -229,40 +241,16 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Weekly Execution Plan</CardTitle>
+      {/* Today's Execution Plan */}
+      <Card className="shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Target className="h-5 w-5" />
+            Today's Execution Plan
+          </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Fixed Routine</h4>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>• 5:30 AM - Wake up & Meditation</p>
-                <p>• 6:00 AM - Exercise/Gym</p>
-                <p>• 7:00 AM - Deep Work Session</p>
-                <p>• 9:00 AM - Breakfast & Planning</p>
-                <p>• 10:00 AM - Business Work</p>
-                <p>• 2:00 PM - Lunch & Rest</p>
-                <p>• 3:00 PM - Content Creation</p>
-                <p>• 6:00 PM - Family Time</p>
-                <p>• 9:00 PM - Reading & Wind Down</p>
-                <p>• 10:30 PM - Sleep</p>
-              </div>
-            </div>
-            <div>
-              <h4 className="font-medium text-gray-900 mb-2">Weekly Focus</h4>
-              <div className="text-sm text-gray-600 space-y-1">
-                <p>• Monday: Business & Admin</p>
-                <p>• Tuesday: Content Recording</p>
-                <p>• Wednesday: Client Meetings</p>
-                <p>• Thursday: Creative Work</p>
-                <p>• Friday: Business Development</p>
-                <p>• Saturday: Learning & Planning</p>
-                <p>• Sunday: Rest & Family</p>
-              </div>
-            </div>
-          </div>
+        <CardContent className="pt-4">
+          <WeeklyPlanChecklist userId={currentUser || ""} compact={true} showOnlyToday={true} />
         </CardContent>
       </Card>
     </div>

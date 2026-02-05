@@ -7,15 +7,18 @@ import { Calendar, CheckCircle, Circle } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DailyTracker } from "@/lib/schemas";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useReminders } from "@/hooks/use-reminders";
+import { ReminderBanner } from "@/components/reminder-banner";
+import { ensureTodayTrackerExists } from "@/lib/daily-tracker-utils";
 
 const habits = [
-  { key: "deepWorkDone", label: "Deep Work" },
-  { key: "gymDone", label: "Gym" },
-  { key: "contentDone", label: "Content" },
-  { key: "ecommerceDone", label: "E-commerce" },
-  { key: "printerDone", label: "3D Printing" },
-  { key: "sleepBefore11", label: "Sleep Before 11" },
-  { key: "wake530", label: "Wake 5:30" },
+  { key: "deepWorkDone", label: "🔥 Deep Work Session" },
+  { key: "gymDone", label: "💪 Gym / Exercise" },
+  { key: "contentDone", label: "🎬 Content Creation" },
+  { key: "ecommerceDone", label: "🛍️ E-commerce Work" },
+  { key: "printerDone", label: "🖨️ 3D Printing" },
+  { key: "sleepBefore11", label: "🌙 Sleep Before 11 PM" },
+  { key: "wake530", label: "⏰ Wake at 5:30 AM" },
 ];
 
 const getMoodColor = (mood: string) => {
@@ -34,11 +37,14 @@ export default function DailyTrackerPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const currentUser = useCurrentUser();
+  const reminders = useReminders(currentUser || undefined);
 
   const today = new Date().toISOString().split('T')[0];
 
   useEffect(() => {
     if (currentUser) {
+      // Ensure today's tracker exists
+      ensureTodayTrackerExists(currentUser);
       fetchData();
     }
   }, [currentUser]);
@@ -205,10 +211,13 @@ export default function DailyTrackerPage() {
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* Reminder Banner */}
+      <ReminderBanner reminders={reminders} />
+      
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl p-6 text-white shadow-lg">
         <h1 className="text-2xl sm:text-3xl font-bold mb-2">Daily Tracker</h1>
-        <p className="text-blue-100 text-sm sm:text-base">Track your daily habits and progress</p>
+        <p className="text-blue-100 text-sm sm:text-base">Track your mood, habits, and daily activities</p>
       </div>
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
@@ -217,7 +226,7 @@ export default function DailyTrackerPage() {
           <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <Calendar className="h-5 w-5 text-blue-600" />
-              Today's Progress
+              Today's Habits & Mood
             </CardTitle>
             <p className="text-xs sm:text-sm text-gray-600 mt-1">{today}</p>
           </CardHeader>
@@ -290,10 +299,10 @@ export default function DailyTrackerPage() {
           </CardContent>
         </Card>
 
-        {/* Weekly Overview */}
+        {/* Weekly Habit Overview */}
         <Card className="shadow-md">
           <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
-            <CardTitle className="text-base sm:text-lg">Weekly Overview</CardTitle>
+            <CardTitle className="text-base sm:text-lg">Weekly Habit Overview</CardTitle>
           </CardHeader>
           <CardContent className="pt-4">
             <div className="space-y-3">

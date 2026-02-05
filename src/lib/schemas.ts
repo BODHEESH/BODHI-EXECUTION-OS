@@ -28,6 +28,10 @@ export const TaskSchema = z.object({
   dueDate: z.string().optional(),
   estimatedTime: z.enum(["MIN15", "MIN30", "HOUR1", "HOUR2", "HOUR4"]).default("HOUR1"),
   owner: z.enum(["ME", "WIFE"]).default("ME"),
+  isRecurring: z.boolean().default(false),
+  recurringFrequency: z.enum(["DAILY", "WEEKLY", "MONTHLY"]).optional(),
+  lastRecurredAt: z.string().optional(),
+  parentTaskId: z.string().optional(),
   userId: z.string(),
 });
 

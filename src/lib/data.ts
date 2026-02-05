@@ -43,6 +43,7 @@ let tasks: Task[] = [
     dueDate: new Date().toISOString().split('T')[0],
     estimatedTime: "HOUR2",
     owner: "ME",
+    isRecurring: false,
     userId: "1",
   },
   {
@@ -55,6 +56,7 @@ let tasks: Task[] = [
     dueDate: new Date(Date.now() + 86400000).toISOString().split('T')[0],
     estimatedTime: "HOUR4",
     owner: "WIFE",
+    isRecurring: false,
     userId: "1",
   },
   {
@@ -67,6 +69,7 @@ let tasks: Task[] = [
     dueDate: new Date().toISOString().split('T')[0],
     estimatedTime: "HOUR2",
     owner: "ME",
+    isRecurring: false,
     userId: "1",
   },
 ];

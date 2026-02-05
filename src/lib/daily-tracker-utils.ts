@@ -1,0 +1,57 @@
+/**
+ * Utility functions for Daily Tracker data integrity
+ */
+
+export async function ensureTodayTrackerExists(userId: string): Promise<any> {
+  const today = new Date().toISOString().split('T')[0];
+  const dayName = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+
+  try {
+    // Check if today's tracker exists
+    const response = await fetch(`/api/daily-tracker?userId=${userId}&date=${today}`);
+    const data = await response.json();
+
+    if (data && data.length > 0) {
+      return data[0]; // Return existing tracker
+    }
+
+    // Create today's tracker if it doesn't exist
+    const newTracker = {
+      userId,
+      date: today,
+      day: dayName,
+      deepWorkDone: false,
+      gymDone: false,
+      contentDone: false,
+      ecommerceDone: false,
+      printerDone: false,
+      sleepBefore11: false,
+      wake530: false,
+      mood: 'NEUTRAL',
+      notes: null,
+    };
+
+    const createResponse = await fetch('/api/daily-tracker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTracker),
+    });
+
+    if (!createResponse.ok) {
+      throw new Error('Failed to create today tracker');
+    }
+
+    return await createResponse.json();
+  } catch (error) {
+    console.error('Error ensuring today tracker exists:', error);
+    return null;
+  }
+}
+
+export function getTodayDate(): string {
+  return new Date().toISOString().split('T')[0];
+}
+
+export function getTodayDayName(): string {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
+}

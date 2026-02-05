@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
-import { X, LayoutDashboard, Calendar, CheckSquare, Video, Briefcase, LogOut } from "lucide-react";
+import { X, LayoutDashboard, Calendar, CheckSquare, Video, Briefcase, LogOut, TrendingUp, Settings, Target, Award } from "lucide-react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -12,6 +12,10 @@ const navigation = [
   { name: "Tasks", href: "/tasks", icon: CheckSquare },
   { name: "Content", href: "/content", icon: Video },
   { name: "Business", href: "/business", icon: Briefcase },
+  { name: "Goals & Streaks", href: "/goals", icon: Award },
+  { name: "Execution Plan", href: "/execution-plan", icon: Target },
+  { name: "Weekly Review", href: "/weekly-review", icon: TrendingUp },
+  { name: "Settings", href: "/settings", icon: Settings },
 ];
 
 interface SidebarProps {
@@ -37,12 +41,13 @@ export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <Link 
           href="/dashboard" 
           onClick={handleLinkClick}
-          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+          className="hover:opacity-80 transition-opacity"
         >
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">BO</span>
-          </div>
-          <h1 className="text-lg font-bold text-gray-900">BODHI OS</h1>
+          <img 
+            src="/logos/cp1.png" 
+            alt="BODHI OS Logo" 
+            className="h-16 w-auto object-contain"
+          />
         </Link>
         {onClose && (
           <button 

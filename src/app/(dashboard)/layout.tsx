@@ -86,11 +86,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               >
                 <Menu className="h-6 w-6" />
               </button>
-              <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                <div className="w-7 h-7 bg-indigo-600 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xs">BO</span>
-                </div>
-                <h1 className="text-lg font-bold text-gray-900">BODHI OS</h1>
+              <Link href="/dashboard" className="hover:opacity-80 transition-opacity">
+                <img 
+                  src="/logos/cp1.png" 
+                  alt="BODHI OS Logo" 
+                  className="h-14 w-auto object-contain"
+                />
               </Link>
               <div className="w-10"></div>
             </div>

@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Clock, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { useSession } from "next-auth/react";
+import { DeleteConfirmationModal } from "@/components/delete-confirmation-modal";
+import { createRecurringTaskInstance } from "@/lib/recurring-tasks";
+import { checkTaskPermissions } from "@/lib/permissions";
 
 const statusColumns: Array<{ title: string; status: Task["status"] }> = [
   { title: "Backlog", status: "BACKLOG" },
@@ -47,6 +51,13 @@ export default function TasksPage() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const currentUser = useCurrentUser();
+  const { data: session } = useSession();
+  const userRole = (session?.user?.role || 'ME') as 'ME' | 'WIFE';
+  
+  // Delete confirmation state
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [deleteTargetTitle, setDeleteTargetTitle] = useState<string>("");
 
   // Form state
   const [newTask, setNewTask] = useState({
@@ -58,6 +69,8 @@ export default function TasksPage() {
     dueDate: "",
     estimatedTime: "HOUR1" as Task["estimatedTime"],
     owner: "ME" as Task["owner"],
+    isRecurring: false,
+    recurringFrequency: "DAILY" as "DAILY" | "WEEKLY" | "MONTHLY",
   });
 
   useEffect(() => {
@@ -107,6 +120,8 @@ export default function TasksPage() {
           dueDate: "",
           estimatedTime: "HOUR1",
           owner: "ME",
+          isRecurring: false,
+          recurringFrequency: "DAILY",
         });
         setShowAddForm(false);
         fetchTasks();
@@ -120,6 +135,8 @@ export default function TasksPage() {
 
   const updateTaskStatus = async (taskId: string, newStatus: Task["status"]) => {
     try {
+      const task = tasks.find(t => t.id === taskId);
+      
       const response = await fetch("/api/tasks", {
         method: "PUT",
         headers: {
@@ -132,6 +149,13 @@ export default function TasksPage() {
         setTasks(tasks.map(task => 
           task.id === taskId ? { ...task, status: newStatus } : task
         ));
+        
+        // Create recurring task instance if marked as DONE
+        if (newStatus === "DONE" && task?.isRecurring && currentUser) {
+          await createRecurringTaskInstance(task, currentUser);
+          // Refresh tasks to show the new recurring instance
+          fetchTasks();
+        }
       }
     } catch (error) {
       console.error("Failed to update task:", error);
@@ -146,10 +170,23 @@ export default function TasksPage() {
 
       if (response.ok) {
         setTasks(tasks.filter(task => task.id !== taskId));
+        setShowDeleteModal(false);
+        setDeleteTargetId(null);
+        setDeleteTargetTitle("");
       }
     } catch (error) {
       console.error("Failed to delete task:", error);
     }
+  };
+  
+  const handleDeleteClick = (taskId: string, taskTitle: string) => {
+    setDeleteTargetId(taskId);
+    setDeleteTargetTitle(taskTitle);
+    setShowDeleteModal(true);
+  };
+  
+  const getTaskPermissions = (task: Task) => {
+    return checkTaskPermissions(userRole, task.owner, task.owner);
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -319,6 +356,38 @@ export default function TasksPage() {
               />
             </div>
             
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="isRecurring"
+                  checked={newTask.isRecurring}
+                  onChange={(e) => setNewTask({ ...newTask, isRecurring: e.target.checked })}
+                  className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                />
+                <label htmlFor="isRecurring" className="text-sm font-medium text-gray-700">
+                  Recurring Task
+                </label>
+              </div>
+              
+              {newTask.isRecurring && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Frequency
+                  </label>
+                  <select
+                    value={newTask.recurringFrequency}
+                    onChange={(e) => setNewTask({ ...newTask, recurringFrequency: e.target.value as "DAILY" | "WEEKLY" | "MONTHLY" })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  >
+                    <option value="DAILY">Daily</option>
+                    <option value="WEEKLY">Weekly</option>
+                    <option value="MONTHLY">Monthly</option>
+                  </select>
+                </div>
+              )}
+            </div>
+            
             <div className="flex justify-end gap-2">
               <Button
                 variant="outline"
@@ -436,18 +505,29 @@ export default function TasksPage() {
                               ))}
                             </select>
                           )}
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (task.id) deleteTask(task.id);
-                            }}
-                            className="text-xs px-2 py-1 h-6"
-                          >
-                            Delete
-                          </Button>
+                          {getTaskPermissions(task).canDelete && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (task.id) handleDeleteClick(task.id, task.title);
+                              }}
+                              className="text-xs px-2 py-1 h-6"
+                            >
+                              Delete
+                            </Button>
+                          )}
                         </div>
+                        
+                        {task.isRecurring && (
+                          <div className="flex items-center gap-1 pt-1">
+                            <Badge className="text-xs bg-purple-100 text-purple-800">
+                              {task.recurringFrequency}
+                            </Badge>
+                            <span className="text-xs text-gray-500">Recurring</span>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -457,6 +537,18 @@ export default function TasksPage() {
           );
         })}
       </div>
+      
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={() => {
+          if (deleteTargetId) deleteTask(deleteTargetId);
+        }}
+        title="Delete Task?"
+        description="This action cannot be undone. This will permanently delete the task."
+        itemName={deleteTargetTitle}
+      />
     </div>
   );
 }
