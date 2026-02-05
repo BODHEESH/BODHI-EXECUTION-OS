@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, Calendar, Clock, X } from "lucide-react";
 import { useCurrentUser } from "@/hooks/use-current-user";
 
-const statusColumns = [
+const statusColumns: Array<{ title: string; status: Task["status"] }> = [
   { title: "Backlog", status: "BACKLOG" },
   { title: "Today", status: "TODAY" },
   { title: "In Progress", status: "IN_PROGRESS" },
@@ -181,27 +181,34 @@ export default function TasksPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
-          <p className="text-gray-600">Manage your tasks and projects</p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Tasks</h1>
+            <p className="text-purple-100 text-sm sm:text-base">Manage your tasks and projects</p>
+          </div>
+          <Button 
+            onClick={() => setShowAddForm(true)}
+            className="bg-white text-purple-600 hover:bg-purple-50 shadow-md"
+          >
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Task</span>
+          </Button>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Task
-        </Button>
       </div>
 
       {showAddForm && (
-        <Card className="border-2 border-indigo-200">
-          <CardHeader>
+        <Card className="border-2 border-purple-300 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
             <div className="flex items-center justify-between">
-              <CardTitle>Add New Task</CardTitle>
+              <CardTitle className="text-lg font-bold">Add New Task</CardTitle>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAddForm(false)}
+                className="hover:bg-purple-100"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -330,12 +337,13 @@ export default function TasksPage() {
         </Card>
       )}
 
-      <div className="flex flex-col sm:flex-row gap-4">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant={filter === "ALL" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilter("ALL")}
+            className={filter === "ALL" ? "bg-gradient-to-r from-purple-600 to-pink-600" : ""}
           >
             All Tasks
           </Button>
@@ -343,6 +351,7 @@ export default function TasksPage() {
             variant={filter === "TODAY" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilter("TODAY")}
+            className={filter === "TODAY" ? "bg-gradient-to-r from-purple-600 to-pink-600" : ""}
           >
             Today
           </Button>
@@ -350,6 +359,7 @@ export default function TasksPage() {
             variant={filter === "WIFE" ? "default" : "outline"}
             size="sm"
             onClick={() => setFilter("WIFE")}
+            className={filter === "WIFE" ? "bg-gradient-to-r from-purple-600 to-pink-600" : ""}
           >
             Wife's Tasks
           </Button>
@@ -359,27 +369,27 @@ export default function TasksPage() {
           placeholder="Search tasks..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 px-4 py-2 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
         />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {statusColumns.map((column) => {
           const columnTasks = getTasksByStatus(column.status);
           
           return (
-            <Card key={column.status} className="min-h-[400px]">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+            <Card key={column.status} className="min-h-[400px] shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-purple-50">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center justify-between">
                   {column.title}
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white">
                     {columnTasks.length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {columnTasks.map((task) => (
-                  <Card key={task.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                  <Card key={task.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-transparent hover:border-purple-200">
                     <CardContent className="p-3">
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium leading-tight">
@@ -404,7 +414,7 @@ export default function TasksPage() {
                         {task.dueDate && (
                           <div className="flex items-center text-xs text-gray-500">
                             <Calendar className="h-3 w-3 mr-1" />
-                            {new Date(task.dueDate).toLocaleDateString()}
+                            {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}
                           </div>
                         )}
                         <div className="flex items-center text-xs text-gray-500">
@@ -415,7 +425,7 @@ export default function TasksPage() {
                           {column.status !== "DONE" && (
                             <select
                               value={task.status}
-                              onChange={(e) => updateTaskStatus(task.id, e.target.value as Task["status"])}
+                              onChange={(e) => updateTaskStatus(task.id || "", (e.target.value || "BACKLOG") as Task["status"])}
                               className="text-xs border border-gray-300 rounded px-2 py-1"
                               onClick={(e) => e.stopPropagation()}
                             >

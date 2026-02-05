@@ -186,27 +186,34 @@ export default function ContentPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Content Pipeline</h1>
-          <p className="text-gray-600">Track your content creation workflow</p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-pink-600 to-rose-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Content Pipeline</h1>
+            <p className="text-pink-100 text-sm sm:text-base">Track your content creation workflow</p>
+          </div>
+          <Button 
+            onClick={() => setShowAddForm(true)}
+            className="bg-white text-pink-600 hover:bg-pink-50 shadow-md"
+          >
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Content</span>
+          </Button>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Content
-        </Button>
       </div>
 
       {showAddForm && (
-        <Card className="border-2 border-indigo-200">
-          <CardHeader>
+        <Card className="border-2 border-pink-300 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-pink-50 to-rose-50">
             <div className="flex items-center justify-between">
-              <CardTitle>Add New Content</CardTitle>
+              <CardTitle className="text-lg font-bold">Add New Content</CardTitle>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAddForm(false)}
+                className="hover:bg-pink-100"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -233,7 +240,7 @@ export default function ContentPage() {
                 </label>
                 <select
                   value={newContent.type}
-                  onChange={(e) => setNewContent({ ...newContent, type: e.target.value as Content["type"] })}
+                  onChange={(e) => setNewContent({ ...newContent, type: (e.target?.value || "LONG_VIDEO") as Content["type"] })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="LONG_VIDEO">Long Video</option>
@@ -248,7 +255,7 @@ export default function ContentPage() {
                 </label>
                 <select
                   value={newContent.status}
-                  onChange={(e) => setNewContent({ ...newContent, status: e.target.value as Content["status"] })}
+                  onChange={(e) => setNewContent({ ...newContent, status: (e.target?.value || "IDEA") as Content["status"] })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="IDEA">Idea</option>
@@ -267,7 +274,7 @@ export default function ContentPage() {
                 </label>
                 <select
                   value={newContent.owner}
-                  onChange={(e) => setNewContent({ ...newContent, owner: e.target.value as Content["owner"] })}
+                  onChange={(e) => setNewContent({ ...newContent, owner: (e.target?.value || "ME") as Content["owner"] })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 >
                   <option value="ME">Me</option>
@@ -390,20 +397,23 @@ export default function ContentPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {statusColumns.map((column) => {
           const columnContent = content.filter((item) => item.status === column.status);
           
           return (
-            <Card key={column.status} className="min-h-[400px]">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600">
+            <Card key={column.status} className="min-h-[400px] shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-pink-50">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center justify-between">
                   {column.title}
+                  <Badge className="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
+                    {columnContent.length}
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {columnContent.map((item) => (
-                  <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                  <Card key={item.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-transparent hover:border-pink-200">
                     <CardContent className="p-3">
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium leading-tight">
@@ -432,7 +442,12 @@ export default function ContentPage() {
                           {column.status !== "POSTED" && (
                             <select
                               value={item.status}
-                              onChange={(e) => updateContentStatus(item.id, e.target.value as Content["status"])}
+                              onChange={(e) => {
+                                const value = e.target?.value ?? "IDEA";
+                                if (item.id) {
+                                  updateContentStatus(item.id, value as Content["status"]);
+                                }
+                              }}
                               className="text-xs border border-gray-300 rounded px-2 py-1"
                               onClick={(e) => e.stopPropagation()}
                             >

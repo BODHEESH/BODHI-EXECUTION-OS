@@ -5,6 +5,7 @@ let dailyTrackers: DailyTracker[] = [
   {
     id: "1",
     date: new Date().toISOString().split('T')[0],
+    day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
     deepWorkDone: false,
     gymDone: true,
     contentDone: false,
@@ -18,6 +19,7 @@ let dailyTrackers: DailyTracker[] = [
   {
     id: "2",
     date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
+    day: new Date(Date.now() - 86400000).toLocaleDateString('en-US', { weekday: 'long' }),
     deepWorkDone: true,
     gymDone: true,
     contentDone: true,
@@ -102,6 +104,7 @@ let business: Business[] = [
     deliveryDate: "2024-02-05",
     amount: 2500,
     cost: 1200,
+    profit: 1300,
     paymentStatus: "PAID",
     handledBy: "ME",
     userId: "1",
@@ -114,6 +117,7 @@ let business: Business[] = [
     orderDate: "2024-02-08",
     amount: 800,
     cost: 200,
+    profit: 600,
     paymentStatus: "PENDING",
     handledBy: "WIFE",
     userId: "1",
@@ -242,6 +246,7 @@ export async function getMonthlyProfit(userId: string): Promise<number> {
   return business
     .filter(item => item.userId === userId)
     .filter(item => {
+      if (!item.orderDate) return false;
       const orderDate = new Date(item.orderDate);
       return orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear;
     })

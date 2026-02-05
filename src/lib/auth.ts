@@ -61,7 +61,6 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET || "fallback-secret-key",
   pages: {
     signIn: "/login",
-    signUp: "/register",
   },
   callbacks: {
     async jwt({ token, user }) {

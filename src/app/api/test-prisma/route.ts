@@ -13,7 +13,10 @@ export async function GET() {
   } catch (error) {
     console.error('Prisma import error:', error);
     return NextResponse.json(
-      { error: 'Prisma import failed', details: error.message },
+      { 
+        error: 'Prisma import failed', 
+        details: error instanceof Error ? error.message : 'Unknown error' 
+      },
       { status: 500 }
     );
   }

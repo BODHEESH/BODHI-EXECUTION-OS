@@ -30,7 +30,7 @@ export async function POST() {
         printerDone: false,
         sleepBefore11: true,
         wake530: true,
-        mood: 'GREAT',
+        mood: 'GREAT' as const,
         notes: 'Productive day!',
         score: 6,
         userId: user.id,
@@ -45,7 +45,7 @@ export async function POST() {
         printerDone: true,
         sleepBefore11: false,
         wake530: false,
-        mood: 'GOOD',
+        mood: 'GOOD' as const,
         notes: 'Relaxed weekend',
         score: 4,
         userId: user.id,
@@ -55,9 +55,9 @@ export async function POST() {
     for (const tracker of dailyTrackers) {
       await prisma.dailyTracker.upsert({
         where: { 
-          userId_date: { 
-            userId: user.id, 
-            date: tracker.date.toISOString().split('T')[0] 
+          date_userId: { 
+            date: tracker.date.toISOString().split('T')[0],
+            userId: user.id
           } 
         },
         update: tracker,
@@ -119,7 +119,7 @@ export async function POST() {
     const content = [
       {
         title: 'Next.js 14 App Router Tutorial',
-        platforms: 'BODHI_TECH_TALKS,SHORTS',
+        platforms: ['BODHI_TECH_TALKS', 'SHORTS'],
         type: 'LONG_VIDEO' as const,
         status: 'EDITING' as const,
         shootDate: '2024-02-06',
@@ -130,7 +130,7 @@ export async function POST() {
       },
       {
         title: 'Prisma Performance Tips',
-        platforms: 'BODHI_LEARN',
+        platforms: ['BODHI_LEARN'],
         type: 'SHORT' as const,
         status: 'SCRIPTED' as const,
         shootDate: '2024-02-08',

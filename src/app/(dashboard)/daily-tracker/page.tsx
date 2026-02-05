@@ -204,56 +204,71 @@ export default function DailyTrackerPage() {
   const weeklyTotal = weeklyData.reduce((total, day) => total + calculateScore(day), 0);
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Daily Tracker</h1>
-        <p className="text-gray-600">Track your daily habits and progress</p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl p-6 text-white shadow-lg">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Daily Tracker</h1>
+        <p className="text-blue-100 text-sm sm:text-base">Track your daily habits and progress</p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Today's Progress - {today}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        {/* Today's Progress */}
+        <Card className="shadow-md">
+          <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
+            <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              Today's Progress
             </CardTitle>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">{today}</p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <CardContent className="space-y-4 pt-4">
+            {/* Habits Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {habits.map((habit) => (
-                <div 
-                  key={habit.key} 
-                  className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded"
+                <button
+                  key={habit.key}
                   onClick={() => toggleHabit(habit.key as keyof DailyTracker)}
+                  className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                    todayData && todayData[habit.key as keyof DailyTracker]
+                      ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 shadow-sm'
+                      : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
+                  }`}
                 >
                   {todayData && todayData[habit.key as keyof DailyTracker] ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
+                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                   ) : (
-                    <Circle className="h-5 w-5 text-gray-300" />
+                    <Circle className="h-5 w-5 text-gray-400 flex-shrink-0" />
                   )}
-                  <span className="text-sm">{habit.label}</span>
-                </div>
+                  <span className="text-sm font-medium text-left">{habit.label}</span>
+                </button>
               ))}
             </div>
             
-            <div className="pt-4 border-t">
+            {/* Score Progress */}
+            <div className="pt-4 border-t space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Today's Score</span>
-                <Badge variant="secondary">{score}/7</Badge>
+                <span className="text-sm font-semibold text-gray-700">Today's Score</span>
+                <Badge className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-base px-3 py-1">
+                  {score}/7
+                </Badge>
               </div>
-              <div className="mt-2">
-                <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="relative">
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                   <div
-                    className="bg-green-600 h-2 rounded-full transition-all"
+                    className="bg-gradient-to-r from-green-500 to-emerald-500 h-3 rounded-full transition-all duration-500 shadow-sm"
                     style={{ width: `${(score / 7) * 100}%` }}
                   ></div>
                 </div>
+                <span className="text-xs text-gray-600 mt-1 block text-center">
+                  {Math.round((score / 7) * 100)}% Complete
+                </span>
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Mood</span>
-              <div className="flex gap-2">
+            {/* Mood Selector */}
+            <div className="pt-4 border-t">
+              <span className="text-sm font-semibold text-gray-700 block mb-3">How's your mood?</span>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {(["GREAT", "GOOD", "OK", "LOW"] as const).map((mood) => (
                   <Button
                     key={mood}
@@ -261,6 +276,11 @@ export default function DailyTrackerPage() {
                     size="sm"
                     onClick={() => updateMood(mood)}
                     disabled={isSaving}
+                    className={`${
+                      todayData?.mood === mood
+                        ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
+                        : 'hover:bg-gray-100'
+                    }`}
                   >
                     {mood}
                   </Button>
@@ -270,11 +290,12 @@ export default function DailyTrackerPage() {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Weekly Overview</CardTitle>
+        {/* Weekly Overview */}
+        <Card className="shadow-md">
+          <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50">
+            <CardTitle className="text-base sm:text-lg">Weekly Overview</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="pt-4">
             <div className="space-y-3">
               {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((day, index) => {
                 const dayData = weeklyData.find(d => {

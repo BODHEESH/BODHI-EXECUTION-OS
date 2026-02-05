@@ -15,7 +15,7 @@ const RupeeSign = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const statusColumns = [
+const statusColumns: { title: string; status: Business["orderStatus"] }[] = [
   { title: "New", status: "NEW" },
   { title: "Designing", status: "DESIGNING" },
   { title: "Printing", status: "PRINTING" },
@@ -228,27 +228,34 @@ export default function BusinessPage() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Business Tracker</h1>
-          <p className="text-gray-600">Track orders and business operations</p>
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl p-6 text-white shadow-lg">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold mb-2">Business Tracker</h1>
+            <p className="text-emerald-100 text-sm sm:text-base">Track orders and business operations</p>
+          </div>
+          <Button 
+            onClick={() => setShowAddForm(true)}
+            className="bg-white text-emerald-600 hover:bg-emerald-50 shadow-md"
+          >
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Add Order</span>
+          </Button>
         </div>
-        <Button onClick={() => setShowAddForm(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Order
-        </Button>
       </div>
 
       {showAddForm && (
-        <Card className="border-2 border-indigo-200">
-          <CardHeader>
+        <Card className="border-2 border-emerald-300 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-emerald-50 to-teal-50">
             <div className="flex items-center justify-between">
-              <CardTitle>Add New Order</CardTitle>
+              <CardTitle className="text-lg font-bold">Add New Order</CardTitle>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowAddForm(false)}
+                className="hover:bg-emerald-100"
               >
                 <X className="h-4 w-4" />
               </Button>
@@ -427,7 +434,7 @@ export default function BusinessPage() {
         </Card>
       )}
 
-      <div className="grid gap-6 md:grid-cols-4">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
@@ -473,23 +480,23 @@ export default function BusinessPage() {
         </Card>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
         {statusColumns.slice(0, 6).map((column) => {
           const columnBusiness = getBusinessByStatus(column.status);
           
           return (
-            <Card key={column.status} className="min-h-[400px]">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+            <Card key={column.status} className="min-h-[400px] shadow-md hover:shadow-lg transition-shadow">
+              <CardHeader className="pb-3 bg-gradient-to-r from-gray-50 to-emerald-50">
+                <CardTitle className="text-sm font-semibold text-gray-700 flex items-center justify-between">
                   {column.title}
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
                     {columnBusiness.length}
                   </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {columnBusiness.map((item) => (
-                  <Card key={item.id} className="cursor-pointer hover:shadow-md transition-shadow">
+                  <Card key={item.id} className="cursor-pointer hover:shadow-lg transition-all border-2 border-transparent hover:border-emerald-200">
                     <CardContent className="p-3">
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium leading-tight">
@@ -507,7 +514,7 @@ export default function BusinessPage() {
                           </Badge>
                         </div>
                         <div className="flex items-center justify-between text-xs text-gray-600">
-                          <span>Order: {new Date(item.orderDate).toLocaleDateString()}</span>
+                          <span>Order: {item.orderDate ? new Date(item.orderDate).toLocaleDateString() : 'N/A'}</span>
                           <span className="font-medium">₹{item.amount}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
@@ -520,14 +527,14 @@ export default function BusinessPage() {
                         </div>
                         {item.deliveryDate && (
                           <div className="text-xs text-gray-500">
-                            Delivery: {new Date(item.deliveryDate).toLocaleDateString()}
+                            Delivery: {item.deliveryDate ? new Date(item.deliveryDate).toLocaleDateString() : 'N/A'}
                           </div>
                         )}
                         <div className="flex gap-1 pt-2">
                           {column.status !== "DELIVERED" && column.status !== "CANCELLED" && (
                             <select
                               value={item.orderStatus}
-                              onChange={(e) => updateBusinessStatus(item.id, e.target.value as Business["orderStatus"])}
+                              onChange={(e) => updateBusinessStatus(item.id || "", (e.target.value || "NEW") as Business["orderStatus"])}
                               className="text-xs border border-gray-300 rounded px-2 py-1"
                               onClick={(e) => e.stopPropagation()}
                             >
