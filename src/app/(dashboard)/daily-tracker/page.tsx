@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, CheckCircle, Circle } from "lucide-react";
+import { Calendar, CheckCircle, Circle, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import { DailyTracker } from "@/lib/schemas";
 import { useCurrentUser } from "@/hooks/use-current-user";
@@ -32,14 +32,26 @@ const getMoodColor = (mood: string) => {
 };
 
 export default function DailyTrackerPage() {
+  // Get current date in local timezone
+  const getCurrentDate = () => {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
+  const [selectedDate, setSelectedDate] = useState<string>(getCurrentDate());
   const [todayData, setTodayData] = useState<DailyTracker | null>(null);
   const [weeklyData, setWeeklyData] = useState<DailyTracker[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
   const currentUser = useCurrentUser();
   const reminders = useReminders(currentUser || undefined);
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = getCurrentDate();
+  const isToday = selectedDate === today;
 
   useEffect(() => {
     if (currentUser) {
@@ -47,7 +59,19 @@ export default function DailyTrackerPage() {
       ensureTodayTrackerExists(currentUser);
       fetchData();
     }
-  }, [currentUser]);
+  }, [currentUser, selectedDate]);
+
+  // Auto-refresh at midnight
+  useEffect(() => {
+    const checkMidnight = setInterval(() => {
+      const currentDate = getCurrentDate();
+      if (currentDate !== selectedDate && isToday) {
+        setSelectedDate(currentDate);
+      }
+    }, 60000); // Check every minute
+
+    return () => clearInterval(checkMidnight);
+  }, [selectedDate, isToday]);
 
   const fetchData = async () => {
     if (!currentUser) return;
@@ -55,17 +79,17 @@ export default function DailyTrackerPage() {
     try {
       setIsLoading(true);
       
-      // Fetch today's data
-      const todayResponse = await fetch(`/api/daily-tracker?date=${today}&userId=${currentUser}`);
+      // Fetch selected date's data
+      const todayResponse = await fetch(`/api/daily-tracker?date=${selectedDate}&userId=${currentUser}`);
       const todayResult = await todayResponse.json();
       
       if (todayResult && todayResult.length > 0) {
         setTodayData(todayResult[0]);
-      } else {
-        // Create today's entry with defaults
+      } else if (isToday) {
+        // Create today's entry with defaults only if viewing today
         const defaultData: DailyTracker = {
-          date: today,
-          day: new Date().toLocaleDateString('en-US', { weekday: 'long' }),
+          date: selectedDate,
+          day: new Date(selectedDate).toLocaleDateString('en-US', { weekday: 'long' }),
           deepWorkDone: false,
           gymDone: false,
           contentDone: false,
@@ -77,6 +101,9 @@ export default function DailyTrackerPage() {
           userId: currentUser,
         };
         setTodayData(defaultData);
+      } else {
+        // No data for past date
+        setTodayData(null);
       }
 
       // Fetch weekly data
@@ -190,6 +217,34 @@ export default function DailyTrackerPage() {
     return streak;
   };
 
+  const navigateDate = (direction: 'prev' | 'next') => {
+    const currentDate = new Date(selectedDate);
+    if (direction === 'prev') {
+      currentDate.setDate(currentDate.getDate() - 1);
+    } else {
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    const newDate = currentDate.toISOString().split('T')[0];
+    // Don't allow future dates
+    if (newDate <= today) {
+      setSelectedDate(newDate);
+    }
+  };
+
+  const goToToday = () => {
+    setSelectedDate(today);
+  };
+
+  const formatDisplayDate = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return date.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
+
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -214,10 +269,71 @@ export default function DailyTrackerPage() {
       {/* Reminder Banner */}
       <ReminderBanner reminders={reminders} />
       
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl p-6 text-white shadow-lg">
-        <h1 className="text-2xl sm:text-3xl font-bold mb-2">Daily Tracker</h1>
-        <p className="text-blue-100 text-sm sm:text-base">Track your mood, habits, and daily activities</p>
+      {/* Header with Date Navigation */}
+      <div className="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-xl p-4 sm:p-6 text-white shadow-lg">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold">Daily Tracker</h1>
+          <div className="flex items-center justify-center sm:justify-end gap-1 sm:gap-2 flex-wrap">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateDate('prev')}
+              className="text-white hover:bg-white/20 p-2 sm:px-3"
+            >
+              <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowCalendar(!showCalendar)}
+              className="text-white hover:bg-white/20 px-2 sm:px-4 text-xs sm:text-sm"
+            >
+              <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">
+                {isToday ? 'Today' : formatDisplayDate(selectedDate).split(',')[0]}
+              </span>
+              <span className="xs:hidden">
+                {isToday ? 'Today' : formatDisplayDate(selectedDate).split(',')[0].slice(0, 8)}
+              </span>
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigateDate('next')}
+              disabled={selectedDate === today}
+              className="text-white hover:bg-white/20 disabled:opacity-50 p-2 sm:px-3"
+            >
+              <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+            </Button>
+            {!isToday && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goToToday}
+                className="text-white hover:bg-white/20 px-2 sm:px-3 text-xs sm:text-sm"
+              >
+                Today
+              </Button>
+            )}
+          </div>
+        </div>
+        <p className="text-blue-100 text-xs sm:text-sm lg:text-base">{formatDisplayDate(selectedDate)}</p>
+        
+        {/* Calendar Picker */}
+        {showCalendar && (
+          <div className="mt-4 bg-white rounded-lg p-3 sm:p-4 text-gray-900">
+            <input
+              type="date"
+              value={selectedDate}
+              max={today}
+              onChange={(e) => {
+                setSelectedDate(e.target.value);
+                setShowCalendar(false);
+              }}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
+            />
+          </div>
+        )}
       </div>
 
       <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
@@ -226,29 +342,36 @@ export default function DailyTrackerPage() {
           <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
             <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
               <Calendar className="h-5 w-5 text-blue-600" />
-              Today's Habits & Mood
+              {isToday ? "Today's" : ""} Habits & Mood
             </CardTitle>
-            <p className="text-xs sm:text-sm text-gray-600 mt-1">{today}</p>
+            <p className="text-xs sm:text-sm text-gray-600 mt-1">{selectedDate}</p>
           </CardHeader>
           <CardContent className="space-y-4 pt-4">
+            {!todayData && !isToday ? (
+              <div className="text-center py-8 text-gray-500">
+                <Calendar className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+                <p>No data recorded for this date</p>
+              </div>
+            ) : (
+              <>
             {/* Habits Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-2 sm:gap-3">
               {habits.map((habit) => (
                 <button
                   key={habit.key}
                   onClick={() => toggleHabit(habit.key as keyof DailyTracker)}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-all ${
+                  className={`flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-lg transition-all ${
                     todayData && todayData[habit.key as keyof DailyTracker]
                       ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-500 shadow-sm'
                       : 'bg-gray-50 border-2 border-gray-200 hover:border-gray-300'
                   }`}
                 >
                   {todayData && todayData[habit.key as keyof DailyTracker] ? (
-                    <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                    <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 flex-shrink-0" />
                   ) : (
-                    <Circle className="h-5 w-5 text-gray-400 flex-shrink-0" />
+                    <Circle className="h-4 w-4 sm:h-5 sm:w-5 text-gray-400 flex-shrink-0" />
                   )}
-                  <span className="text-sm font-medium text-left">{habit.label}</span>
+                  <span className="text-xs sm:text-sm font-medium text-left">{habit.label}</span>
                 </button>
               ))}
             </div>
@@ -276,8 +399,8 @@ export default function DailyTrackerPage() {
 
             {/* Mood Selector */}
             <div className="pt-4 border-t">
-              <span className="text-sm font-semibold text-gray-700 block mb-3">How's your mood?</span>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <span className="text-xs sm:text-sm font-semibold text-gray-700 block mb-2 sm:mb-3">How's your mood?</span>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 sm:gap-2">
                 {(["GREAT", "GOOD", "OK", "LOW"] as const).map((mood) => (
                   <Button
                     key={mood}
@@ -285,7 +408,7 @@ export default function DailyTrackerPage() {
                     size="sm"
                     onClick={() => updateMood(mood)}
                     disabled={isSaving}
-                    className={`${
+                    className={`text-xs sm:text-sm ${
                       todayData?.mood === mood
                         ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
                         : 'hover:bg-gray-100'
@@ -296,6 +419,8 @@ export default function DailyTrackerPage() {
                 ))}
               </div>
             </div>
+            </>
+            )}
           </CardContent>
         </Card>
 
@@ -341,22 +466,22 @@ export default function DailyTrackerPage() {
       </div>
 
       <Card>
-        <CardHeader>
-          <CardTitle>Streak Tracking</CardTitle>
+        <CardHeader className="pb-3 sm:pb-4">
+          <CardTitle className="text-lg sm:text-xl">Streak Tracking</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-3">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{streaks.gymStreak} days</div>
-              <div className="text-sm text-gray-600">Gym Streak</div>
+          <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-3">
+            <div className="text-center p-3 sm:p-4 bg-green-50 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold text-green-600">{streaks.gymStreak} days</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Gym Streak</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{streaks.deepWorkStreak} days</div>
-              <div className="text-sm text-gray-600">Deep Work Streak</div>
+            <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600">{streaks.deepWorkStreak} days</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Deep Work Streak</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{streaks.wakeStreak} days</div>
-              <div className="text-sm text-gray-600">Wake 5:30 Streak</div>
+            <div className="text-center p-3 sm:p-4 bg-purple-50 rounded-lg">
+              <div className="text-xl sm:text-2xl font-bold text-purple-600">{streaks.wakeStreak} days</div>
+              <div className="text-xs sm:text-sm text-gray-600 mt-1">Wake 5:30 Streak</div>
             </div>
           </div>
         </CardContent>
